@@ -62,7 +62,7 @@ class TypicalWeek(object):
         if self.resolution_in_minutes <= other.resolution_in_minutes:
             assert other.resolution_in_minutes % self.resolution_in_minutes == 0
             assert other.tzinfo == self.tzinfo
-            scaled_other = other.change_resolution(self.resolution_in_minutes)
+            scaled_other = other.copy(self.resolution_in_minutes)
             bitmap_as_hex = str(hex(int(self.bitmap_as_hex, 16) & int(scaled_other.bitmap_as_hex, 16)))[:-1]
             tw = TypicalWeek(
                 resolution_in_minutes=scaled_other.resolution_in_minutes,
@@ -78,7 +78,7 @@ class TypicalWeek(object):
         if self.resolution_in_minutes <= other.resolution_in_minutes:
             assert other.resolution_in_minutes % self.resolution_in_minutes == 0
             assert other.tzinfo == self.tzinfo
-            scaled_other = other.change_resolution(self.resolution_in_minutes)
+            scaled_other = other.copy(self.resolution_in_minutes)
             bitmap_as_hex = str(hex(int(self.bitmap_as_hex, 16) | int(scaled_other.bitmap_as_hex, 16)))[:-1]
             tw = TypicalWeek(
                 resolution_in_minutes=scaled_other.resolution_in_minutes,
@@ -90,7 +90,9 @@ class TypicalWeek(object):
         else:
             return other.__add__(self)
 
-    def change_resolution(self, resolution_in_minutes, lossy=False):
+    def copy(self, resolution_in_minutes=None, lossy=False):
+        if resolution_in_minutes is None:
+            resolution_in_minutes = self.resolution_in_minutes
         assert MINUTES_IN_A_DAY % resolution_in_minutes == 0
         if resolution_in_minutes < self.resolution_in_minutes:
             assert self.resolution_in_minutes % resolution_in_minutes == 0
@@ -242,36 +244,3 @@ class TypicalWeek(object):
             # raise warning that your timestamp is considered local
             t = t.replace(tzinfo=self.tzinfo)
         return t
-
-
-# typical_week = TypicalWeek(resolution_in_minutes=120)
-# now = datetime.datetime(2018, 9, 28, 11, 36, 30, 0)
-# monday = datetime.datetime(year=now.year, month=now.month, day=now.day) - datetime.timedelta(days=now.weekday())
-# for i in xrange(5):
-#     d = monday + datetime.timedelta(days=i)
-#     typical_week.add_busy_interval(d + datetime.timedelta(hours=9), d + datetime.timedelta(hours=12))
-#     typical_week.add_busy_interval(d + datetime.timedelta(hours=14), d + datetime.timedelta(hours=18))
-# current_index = typical_week._get_index_from_datetime(now)
-#
-# print(now, typical_week.is_busy(now))
-# print('current interval', typical_week.get_time_interval(now))
-# print('busy', typical_week.get_busy_intervals(now, now + datetime.timedelta(days=1)))
-# print('busy', typical_week.get_busy_intervals(now, now + datetime.timedelta(hours=4)))
-# print('available', typical_week.get_available_intervals(now, now + datetime.timedelta(days=1)))
-# print('available', typical_week.get_available_intervals(now, now + datetime.timedelta(hours=4)))
-#
-# print('weekly busy')
-# for interval in typical_week.get_busy_intervals(monday, monday + datetime.timedelta(days=8)):
-#     print('\t', interval[0], interval[1])
-# print('weekly available')
-# for interval in typical_week.get_available_intervals(monday, monday + datetime.timedelta(days=8)):
-#     print('\t', interval[0], interval[1])
-# str_repr = typical_week.dumps()
-# assert str_repr == TypicalWeek.loads(str_repr).dumps()
-#
-# tw_30 = typical_week.change_resolution(30)
-# str_repr = typical_week.dumps()
-#
-# tw_60 = typical_week.change_resolution(60)
-# tw_60_from_30 = tw_30.change_resolution(60)
-# assert tw_60 == tw_60_from_30

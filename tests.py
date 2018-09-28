@@ -40,10 +40,10 @@ def test_rescaling():
     tw_60 = work_hour_typical_week(60)
     tw_120 = work_hour_typical_week(120)
 
-    tw_60_to_5 = tw_60.change_resolution(5)
-    tw_60_to_30 = tw_60.change_resolution(30)
-    tw_120_to_60 = tw_120.change_resolution(60)
-    tw_5_to_60 = tw_5.change_resolution(60)
+    tw_60_to_5 = tw_60.copy(resolution_in_minutes=5)
+    tw_60_to_30 = tw_60.copy(resolution_in_minutes=30)
+    tw_120_to_60 = tw_120.copy(resolution_in_minutes=60)
+    tw_5_to_60 = tw_5.copy(resolution_in_minutes=60)
 
     assert extract_monday(tw_60_to_30) == extract_monday(tw_30)
     assert not extract_monday(tw_60_to_30) == extract_monday(tw_60)
