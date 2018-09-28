@@ -2,6 +2,7 @@ import datetime
 import tzlocal
 import pytz
 import json
+import zlib
 MINUTES_IN_A_DAY = 1440
 MINUTES_IN_A_WEEK = 7 * MINUTES_IN_A_DAY
 RESOLUTION_IN_MINUTES = 60
@@ -15,6 +16,9 @@ week = [1 for i in xrange(MINUTES_IN_A_WEEK / RESOLUTION_IN_MINUTES)]
 #   2) are between start_time and end_time
 # I want to be able to create a bitmap from a list of intervals, a resolution in minutes and a number of days.
 # ALL bitmapS ARE 7 DAYS LONG FOR A TYPICAL WEEK
+# TODO:
+# - ability to scale up / down the resolution of a TypicalWeek object without information loss
+# - ability to generate a TypicalWeek instance from Union / Intersection of two TypicalWeek instances.
 
 
 class TypicalWeek(object):
@@ -36,19 +40,23 @@ class TypicalWeek(object):
         if self.tz_aware:
             return self._tzinfo
 
+    @property
+    def bitmap_as_hex(self):
+        return str(hex(int(''.join(map(str, self.bitmap)), 2)))[:-1]
+
     def dumps(self):
         json_str = json.dumps({
             'resolution_in_minutes': self.resolution_in_minutes,
-            'bitmap_as_hex': str(hex(int(''.join(map(str, typical_week.bitmap)), 2)))[:-1],
+            'bitmap_as_hex': self.bitmap_as_hex,
             'timezone': self._tzinfo.zone,
             'tz_aware': self.tz_aware
         })
         print json_str
-        return json_str
+        return zlib.compress(json_str)
 
     @classmethod
     def loads(cls, str_repr):
-        params = json.loads(str_repr)
+        params = json.loads(zlib.decompress(str_repr))
         return cls(**params)
 
     def is_available(self, t):
@@ -65,14 +73,19 @@ class TypicalWeek(object):
     def get_available_intervals(self, start_time, end_time):
         return self._get_time_intervals(start_time, end_time, busy=False)
 
-    def add_event(self, start_time, end_time):
-        print('add_event', start_time, end_time)
+    def add_busy_interval(self, start_time, end_time):
+        print('add_busy_interval', start_time, end_time)
         start_index, end_index = self._index_interval_from_datetime(start_time, end_time)
         for i in range(start_index, end_index + 1):
             if not self._is_busy(i):
                 self._set(i)
-            else:
-                raise ValueError()
+
+    def remove_busy_interval(self, start_time, end_time):
+        print('remove_busy_interval', start_time, end_time)
+        start_index, end_index = self._index_interval_from_datetime(start_time, end_time)
+        for i in range(start_index, end_index + 1):
+            if self._is_busy(i):
+                self._unset(i)
 
     def get_time_interval(self, t):
         i = self._get_index_from_datetime(t)
@@ -152,6 +165,7 @@ class TypicalWeek(object):
                 raise ValueError('Only datetimes without timezone are allowed')
             t = t.astimezone(self.tzinfo).replace(tzinfo=self.tzinfo)
         else:
+            # raise warning that your timestamp is considered local
             t = t.replace(tzinfo=self.tzinfo)
         return t
 
@@ -161,8 +175,8 @@ now = datetime.datetime(2018, 9, 28, 11, 36, 30, 0)
 monday = datetime.datetime(year=now.year, month=now.month, day=now.day) - datetime.timedelta(days=now.weekday())
 for i in xrange(5):
     d = monday + datetime.timedelta(days=i)
-    typical_week.add_event(d + datetime.timedelta(hours=9), d + datetime.timedelta(hours=12))
-    typical_week.add_event(d + datetime.timedelta(hours=14), d + datetime.timedelta(hours=18))
+    typical_week.add_busy_interval(d + datetime.timedelta(hours=9), d + datetime.timedelta(hours=12))
+    typical_week.add_busy_interval(d + datetime.timedelta(hours=14), d + datetime.timedelta(hours=18))
 current_index = typical_week._get_index_from_datetime(now)
 
 print(now, typical_week.is_busy(now))
