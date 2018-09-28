@@ -51,12 +51,7 @@ class TypicalWeek(object):
         return str(hex(int(''.join(map(str, self.bitmap)), 2)))[:-1]
 
     def __eq__(self, other):
-        my_hex = self.bitmap_as_hex
-        other_hex = other.bitmap_as_hex
-        return (
-            my_hex == other_hex
-            and self._tzinfo.zone == other._tzinfo.zone
-            and self.resolution_in_minutes == other.resolution_in_minutes)
+        return self.dumps() == other.dumps()
 
     def __add__(self, other):
         if self.resolution_in_minutes <= other.resolution_in_minutes:
@@ -131,7 +126,6 @@ class TypicalWeek(object):
             'timezone': self._tzinfo.zone,
             'tz_aware': self.tz_aware
         })
-        print(json_str)
         return zlib.compress(json_str)
 
     @classmethod
