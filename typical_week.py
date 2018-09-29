@@ -3,6 +3,16 @@ import tzlocal
 import pytz
 import json
 import zlib
+
+
+class TimezoneAwarenessException(Exception):
+    pass
+
+
+class ScalingException(Exception):
+    pass
+
+
 MINUTES_IN_A_DAY = 1440
 MINUTES_IN_A_WEEK = 7 * MINUTES_IN_A_DAY
 RESOLUTION_IN_MINUTES = 60
@@ -108,7 +118,7 @@ class TypicalWeek(object):
                         if not any(chunk):
                             bit = False
                         else:
-                            raise ValueError('Cannot garantee lossless resoltion change')
+                            raise ScalingException('Cannot garantee lossless resoltion change')
                 bitmap.append(int(bit))
         else:
             bitmap = self.bitmap
@@ -232,7 +242,7 @@ class TypicalWeek(object):
     def _parse_datetime(self, t):
         if t.tzinfo is not None:
             if not self.tz_aware:
-                raise ValueError('Only datetimes without timezone are allowed')
+                raise TimezoneAwarenessException('Only datetimes without timezone are allowed')
             t = t.astimezone(self.tzinfo).replace(tzinfo=self.tzinfo)
         else:
             # raise warning that your timestamp is considered local
