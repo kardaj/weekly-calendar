@@ -25,6 +25,9 @@ def test_add_busy_interval():
         assert not t.is_busy(end_time)
         assert busy_interval[0] == start_time
         assert busy_interval[1] == end_time
+        assert t.get_closest_busy(end_time) > end_time
+        assert t.get_closest_busy(start_time) == start_time
+        assert t.get_closest_idle(start_time) == end_time
 
     for r in [120, 60, 30, 20, 15, 10, 5, 1]:
         test_case(r)

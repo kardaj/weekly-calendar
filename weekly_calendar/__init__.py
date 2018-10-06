@@ -146,6 +146,18 @@ class WeeklyCalendar(object):
     def get_idle_intervals(self, start_time, end_time):
         return self._get_time_intervals(start_time, end_time, busy=False)
 
+    def get_closest_busy(self, t):
+        return self._get_closest(t, busy=True)
+
+    def get_closest_idle(self, t):
+        return self._get_closest(t, busy=False)
+
+    def _get_closest(self, t, busy=False):
+        start_index = self._get_index_from_datetime(t)
+        for i in range(start_index, start_index + len(self.bitmap)):
+            if self._is_busy(i) == busy:
+                return max(t, self._get_datetime_from_index(t, i))
+
     def add_busy_interval(self, start_time, end_time, on_conflict='merge'):
         # TODO: make sure the date interval is 1 week maximum
         assert on_conflict in ['merge', 'fail']
