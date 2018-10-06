@@ -93,7 +93,51 @@ def test_external_operations():
     assert tw_30 == tw_intersection
 
 
+def test_example():
+    def example_1():
+        from weekly_calendar import WeeklyCalendar
+        from datetime import datetime, timedelta
+
+        now = datetime.now()
+        typical_week = WeeklyCalendar(resolution_in_minutes=60)
+
+        assert typical_week.is_idle(now)
+        typical_week.add_busy_interval(now, now + timedelta(hours=3))
+        assert typical_week.is_busy(now)
+        busy_intervals = typical_week.get_busy_intervals(now, now + timedelta(hours=5))
+        assert len(busy_intervals) == 1
+        idle_intervals = typical_week.get_idle_intervals(now, now + timedelta(hours=5))
+        assert len(idle_intervals) == 1
+
+    def example_2():
+        from weekly_calendar import WeeklyCalendar
+
+        tw_60 = WeeklyCalendar(resolution_in_minutes=60)
+        tw_30 = WeeklyCalendar(resolution_in_minutes=30)
+        # resulting objects will have the lowest resolution
+        tw_union = tw_30 + tw_60
+        tw_intersection = tw_30 * tw_60
+
+    def example_3():
+        from weekly_calendar import WeeklyCalendar
+
+        tw_60 = WeeklyCalendar(resolution_in_minutes=60)
+        tw_60_to_30 = tw_60.copy(resolution_in_minutes=30)
+
+    def example_4():
+        tw = WeeklyCalendar()
+        str_repr = tw.dumps()
+        tw_loaded = WeeklyCalendar.loads(str_repr)
+        # checks equal resolution, bitmap, and extra parameters
+        assert tw == tw_loaded
+    example_1()
+    example_2()
+    example_3()
+    example_4()
+
+
 test_internals()
 test_rescaling()
 test_add_busy_interval()
 test_external_operations()
+test_example()

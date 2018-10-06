@@ -6,7 +6,7 @@ with open('README.md', 'r') as fh:
 setup(
     name='weekly-calendar',
     version='0.1.0',
-    author='Hassene Ben Salem',
+    author='kardaj',
     author_email='bensalemhsn@gmail.com',
     description='A simple library to deal with weekly opening hours and other recurrent weekly events',
     long_description=long_description,

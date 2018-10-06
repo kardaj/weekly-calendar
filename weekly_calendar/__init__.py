@@ -147,6 +147,7 @@ class WeeklyCalendar(object):
         return self._get_time_intervals(start_time, end_time, busy=False)
 
     def add_busy_interval(self, start_time, end_time, on_conflict='merge'):
+        # TODO: make sure the date interval is 1 week maximum
         assert on_conflict in ['merge', 'fail']
         start_index, end_index = self._index_interval_from_datetime(start_time, end_time)
         if on_conflict == 'fail':
