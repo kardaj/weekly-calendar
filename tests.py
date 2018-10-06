@@ -1,4 +1,4 @@
-from typical_week import TypicalWeek
+from weekly_calendar import WeeklyCalendar
 import datetime
 
 start_time = datetime.datetime(2018, 9, 28, 9)
@@ -6,7 +6,7 @@ end_time = datetime.datetime(2018, 9, 28, 12)
 
 
 def work_hour_typical_week(resolution_in_minutes):
-    typical_week = TypicalWeek(resolution_in_minutes=resolution_in_minutes)
+    typical_week = WeeklyCalendar(resolution_in_minutes=resolution_in_minutes)
     now = datetime.datetime(2018, 9, 28, 11, 36, 30, 0)
     monday = datetime.datetime(year=now.year, month=now.month, day=now.day) - datetime.timedelta(days=now.weekday())
     for i in xrange(5):
@@ -74,16 +74,16 @@ def test_internals():
         == tw_60.get_busy_intervals(monday_at_9, monday_at_13)
         == tw_60.get_busy_intervals(monday_at_8, monday_at_13))
     assert (
-        tw_60.get_available_intervals(monday_at_9, monday_at_16)
-        == tw_60.get_available_intervals(monday_at_12, monday_at_16)
-        == tw_60.get_available_intervals(monday_at_12, monday_at_14)
-        == tw_60.get_available_intervals(monday_at_9, monday_at_16)
+        tw_60.get_idle_intervals(monday_at_9, monday_at_16)
+        == tw_60.get_idle_intervals(monday_at_12, monday_at_16)
+        == tw_60.get_idle_intervals(monday_at_12, monday_at_14)
+        == tw_60.get_idle_intervals(monday_at_9, monday_at_16)
     )
 
 
 def test_external_operations():
-    # make sure available time AV(tw_union) <= AV(tw) for tw in tw_1, tw_2
-    # make sure available time AV(tw_intersection) >= AV(tw) for tw in tw_1, tw_2
+    # make sure idle time AV(tw_union) <= AV(tw) for tw in tw_1, tw_2
+    # make sure idle time AV(tw_intersection) >= AV(tw) for tw in tw_1, tw_2
     tw_60 = work_hour_typical_week(60)
     tw_30 = work_hour_typical_week(30)
 

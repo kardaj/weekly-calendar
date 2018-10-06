@@ -27,8 +27,8 @@ week = [1 for i in xrange(MINUTES_IN_A_WEEK / RESOLUTION_IN_MINUTES)]
 # I want to be able to create a bitmap from a list of intervals, a resolution in minutes and a number of days.
 # ALL bitmapS ARE 7 DAYS LONG FOR A TYPICAL WEEK
 # TODO:
-# - ability to scale up / down the resolution of a TypicalWeek object without information loss
-# - ability to generate a TypicalWeek instance from Union / Intersection of two TypicalWeek instances.
+# - ability to scale up / down the resolution of a WeeklyCalendar object without information loss
+# - ability to generate a WeeklyCalendar instance from Union / Intersection of two WeeklyCalendar instances.
 
 
 def chunks(l, n):
@@ -37,7 +37,7 @@ def chunks(l, n):
         yield l[i:i + n]
 
 
-class TypicalWeek(object):
+class WeeklyCalendar(object):
     def __init__(self, resolution_in_minutes=60, timezone=None, tz_aware=False, bitmap_as_hex=None):
         assert MINUTES_IN_A_DAY % resolution_in_minutes == 0
         self.tz_aware = tz_aware
@@ -69,7 +69,7 @@ class TypicalWeek(object):
             assert other.tzinfo == self.tzinfo
             scaled_other = other.copy(self.resolution_in_minutes)
             bitmap_as_hex = str(hex(int(self.bitmap_as_hex, 16) & int(scaled_other.bitmap_as_hex, 16)))[:-1]
-            tw = TypicalWeek(
+            tw = WeeklyCalendar(
                 resolution_in_minutes=scaled_other.resolution_in_minutes,
                 timezone=self._tzinfo.zone,
                 tz_aware=self.tz_aware,
@@ -85,7 +85,7 @@ class TypicalWeek(object):
             assert other.tzinfo == self.tzinfo
             scaled_other = other.copy(self.resolution_in_minutes)
             bitmap_as_hex = str(hex(int(self.bitmap_as_hex, 16) | int(scaled_other.bitmap_as_hex, 16)))[:-1]
-            tw = TypicalWeek(
+            tw = WeeklyCalendar(
                 resolution_in_minutes=scaled_other.resolution_in_minutes,
                 timezone=self._tzinfo.zone,
                 tz_aware=self.tz_aware,
@@ -122,7 +122,7 @@ class TypicalWeek(object):
                 bitmap.append(int(bit))
         else:
             bitmap = self.bitmap
-        t = TypicalWeek(
+        t = WeeklyCalendar(
             resolution_in_minutes=resolution_in_minutes,
             timezone=self._tzinfo.zone,
             tz_aware=self.tz_aware)
@@ -143,7 +143,7 @@ class TypicalWeek(object):
         params = json.loads(zlib.decompress(str_repr))
         return cls(**params)
 
-    def is_available(self, t):
+    def is_idle(self, t):
         i = self._get_index_from_datetime(t)
         return not self._is_busy(i)
 
@@ -154,7 +154,7 @@ class TypicalWeek(object):
     def get_busy_intervals(self, start_time, end_time):
         return self._get_time_intervals(start_time, end_time, busy=True)
 
-    def get_available_intervals(self, start_time, end_time):
+    def get_idle_intervals(self, start_time, end_time):
         return self._get_time_intervals(start_time, end_time, busy=False)
 
     def add_busy_interval(self, start_time, end_time):
