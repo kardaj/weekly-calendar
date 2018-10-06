@@ -8,7 +8,7 @@ setup(
     version='0.1.0',
     author='Hassene Ben Salem',
     author_email='bensalemhsn@gmail.com',
-    description='A simple tool to deal with weekly opening hours and other recurrent weekly events',
+    description='A simple library to deal with weekly opening hours and other recurrent weekly events',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/kardaj/weekly-calendar',
