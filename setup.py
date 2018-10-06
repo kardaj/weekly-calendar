@@ -1,0 +1,24 @@
+from setuptools import setup
+
+with open('README.md', 'r') as fh:
+    long_description = fh.read()
+
+setup(
+    name='weekly-calendar',
+    version='0.1.0',
+    author='Hassene Ben Salem',
+    author_email='bensalemhsn@gmail.com',
+    description='A simple tool to deal with weekly opening hours and other recurrent weekly events',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url='https://github.com/kardaj/weekly-calendar',
+    install_requires=['pytz', 'tzlocal'],
+    packages=['weekly_calendar'],
+    classifiers=(
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+    ),
+
+)
