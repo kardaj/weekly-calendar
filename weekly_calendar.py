@@ -19,17 +19,6 @@ RESOLUTION_IN_MINUTES = 60
 
 week = [1 for i in xrange(MINUTES_IN_A_WEEK / RESOLUTION_IN_MINUTES)]
 
-# I want to be able to get intersection from bitmap
-# I want to get a list of intervals from a bitmap
-# I want to get a the list of intervals between two datetimes that
-#   1) have the same resoltion as the bitmap
-#   2) are between start_time and end_time
-# I want to be able to create a bitmap from a list of intervals, a resolution in minutes and a number of days.
-# ALL bitmapS ARE 7 DAYS LONG FOR A TYPICAL WEEK
-# TODO:
-# - ability to scale up / down the resolution of a WeeklyCalendar object without information loss
-# - ability to generate a WeeklyCalendar instance from Union / Intersection of two WeeklyCalendar instances.
-
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
@@ -157,17 +146,24 @@ class WeeklyCalendar(object):
     def get_idle_intervals(self, start_time, end_time):
         return self._get_time_intervals(start_time, end_time, busy=False)
 
-    def add_busy_interval(self, start_time, end_time):
+    def add_busy_interval(self, start_time, end_time, on_conflict='merge'):
+        assert on_conflict in ['merge', 'fail']
         start_index, end_index = self._index_interval_from_datetime(start_time, end_time)
+        if on_conflict == 'fail':
+            # check if its possible
+            if any(self._is_busy(i) for i in range(start_index, end_index)):
+                return False
         for i in range(start_index, end_index):
             if not self._is_busy(i):
                 self._set(i)
+        return True
 
-    def remove_busy_interval(self, start_time, end_time):
+    def del_busy_interval(self, start_time, end_time):
         start_index, end_index = self._index_interval_from_datetime(start_time, end_time)
         for i in range(start_index, end_index + 1):
             if self._is_busy(i):
                 self._unset(i)
+        return True
 
     def get_time_interval(self, t):
         i = self._get_index_from_datetime(t)
@@ -240,6 +236,7 @@ class WeeklyCalendar(object):
         return dt.replace(tzinfo=self.tzinfo)
 
     def _parse_datetime(self, t):
+        # TODO: make a consistent choice to deal with time-ware datetime objects
         if t.tzinfo is not None:
             if not self.tz_aware:
                 raise TimezoneAwarenessException('Only datetimes without timezone are allowed')
