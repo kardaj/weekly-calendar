@@ -42,6 +42,8 @@ tw_60_to_30 = tw_60.copy(resolution_in_minutes=30)
 ```
 Your `WeeklyCalendar` object is serializable:
 ```python
+from weekly_calendar import WeeklyCalendar
+
 tw = WeeklyCalendar()
 str_repr = tw.dumps()
 tw_loaded = WeeklyCalendar.loads(str_repr)
