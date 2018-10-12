@@ -82,7 +82,7 @@ class WeeklyCalendar(object):
             return tw
 
         else:
-            return other.__add__(self)
+            return other.__mul__(self)
 
     def copy(self, resolution_in_minutes=None, lossy=False):
         if resolution_in_minutes is None:
