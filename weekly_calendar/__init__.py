@@ -15,9 +15,6 @@ class ScalingException(Exception):
 
 MINUTES_IN_A_DAY = 1440
 MINUTES_IN_A_WEEK = 7 * MINUTES_IN_A_DAY
-RESOLUTION_IN_MINUTES = 60
-
-week = [1 for i in xrange(MINUTES_IN_A_WEEK / RESOLUTION_IN_MINUTES)]
 
 
 def chunks(l, n):
